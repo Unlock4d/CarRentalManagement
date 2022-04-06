@@ -1,6 +1,7 @@
 ﻿@page "/vehicles/"
 @inject HttpClient _client
 @inject IJSRuntime js
+@implements IDisposable
 @attribute [Authorize]
 <h3 Text="Vehicles" />
 
@@ -19,9 +20,10 @@
 }
 else
 {
-    <table class="table">
+    <table class="table" id="vehiclesTable">
         <thead>
             <tr>
+                <th></th>
                 <th>Make</th>
                 <th>Model</th>
                 <th>Year</th>
@@ -33,6 +35,7 @@ else
             @foreach (var vehicle in Vehicles)
             {
                 <tr>
+                    <td><img src="@vehicle.ImageName" style="height:150px; width:150px" /></td>
                     <td>@vehicle.Make.Name</td>
                     <td>@vehicle.Model.Name</td>
                     <td>@vehicle.Year</td>
@@ -63,6 +66,16 @@ else
     {
         Vehicles = await _client.GetFromJsonAsync<List<Vehicle>>($"{Endpoints.VehiclesEndpoint}");
     }
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        await js.InvokeVoidAsync("AddDataTable", "#vehiclesTable");
+    }
+
+    void IDisposable.Dispose()
+    {
+        js.InvokeVoidAsync("DataTablesDispose", "#vehiclesTable");
+    }
+
 
     async Task Delete(int vehicleId)
     {

@@ -1,7 +1,8 @@
 ﻿@page "/vehicles/create/"
 
-@inject HttpClient _client
+@inject IHttpRepository<Vehicle> _client
 @inject NavigationManager _navManager
+@inject HttpInterceptorService _interceptor
 
 
 <h3 class="card-title">Create new Vehicle</h3>
@@ -16,12 +17,16 @@
 
 
     Vehicle vehicle = new Vehicle();
-    
+
 
 
     private async Task CreateVehicle()
     {
-        await _client.PostAsJsonAsync(Endpoints.VehiclesEndpoint, vehicle);
+        await _client.Create(Endpoints.VehiclesEndpoint, vehicle);
         _navManager.NavigateTo("/vehicles/");
+    }
+    private void Dispose()
+    {
+        _interceptor.DisposeEvent();
     }
 }

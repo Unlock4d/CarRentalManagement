@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CarRentalManagement.Shared.Domain
 {
@@ -28,5 +29,6 @@ namespace CarRentalManagement.Shared.Domain
         [EmailAddress]
         public string EmailAddress { get; set; }
         public virtual List<Booking> Bookings { get; set; }
+        
     }
 }

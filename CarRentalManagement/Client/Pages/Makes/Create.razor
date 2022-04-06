@@ -1,6 +1,6 @@
 ﻿@page "/makes/create/"
 
-@inject HttpClient _client
+@inject IHttpRepository<Make> _client
 @inject NavigationManager _navManager
 
 
@@ -9,7 +9,7 @@
 <hr />
 <br />
 <FormComponent ButtonText="Create Make" make="make"
-               OnValidSubmit="CreateMakes"/>
+               OnValidSubmit="CreateMakes" />
 
 
 
@@ -19,16 +19,11 @@
     Make make = new Make();
     private IList<Make> Makes;
 
-    protected async override Task OnInitializedAsync()
-    {
-        Makes = await _client.GetFromJsonAsync<List<Make>>($"{Endpoints.MakesEndpoint}");
-
-    }
 
 
     private async Task CreateMakes()
     {
-        await _client.PostAsJsonAsync(Endpoints.MakesEndpoint, make);
+        await _client.Create(Endpoints.MakesEndpoint, make);
         _navManager.NavigateTo("/makes/");
     }
 }

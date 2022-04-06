@@ -1,35 +1,36 @@
 ﻿@page "/customers/"
 @inject HttpClient _client
 @inject IJSRuntime js
+@implements IDisposable
 @attribute [Authorize]
 
-    <h3 class="card-title">Customers</h3>
-    <br />
-    <a href="/customers/create" class="btn btn-secondary">
-        <span class="oi oi-plus"></span>
-        Create New Customer
-    </a>
-    <br />
-    <br />
-    @if (Customers == null)
-    {
-        <div class="alert alert-info">Loading Customers...</div>
-    }
-    else
-    {
-        <table class="table ">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Tax ID</th>
-                    <th>Contact Number</th>
-                    <th>Email Address</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var customer in Customers)
-                {
+<h3 class="card-title">Customers</h3>
+<br />
+<a href="/customers/create" class="btn btn-secondary">
+    <span class="oi oi-plus"></span>
+    Create New Customer
+</a>
+<br />
+<br />
+@if (Customers == null)
+{
+    <div class="alert alert-info">Loading Customers...</div>
+}
+else
+{
+    <table class="table " id="customersTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Tax ID</th>
+                <th>Contact Number</th>
+                <th>Email Address</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var customer in Customers)
+            {
                 <tr>
                     <td>@customer.FirstName @customer.LastName</td>
                     <td>@customer.TaxId</td>
@@ -49,29 +50,41 @@
                     </td>
                 </tr>
 
-                }
-            </tbody>
-        </table>
-    }
-
-
-    @code {
-        private List<Customer> Customers;
-
-        protected async override Task OnInitializedAsync()
-        {
-            Customers = await _client.GetFromJsonAsync<List<Customer>>($"{Endpoints.CustomersEndpoint}");
-        }
-
-        async Task Delete(int customerId)
-        {
-            var customer = Customers.First(q => q.Id == customerId);
-            var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {customer.TaxId}?");
-            if (confirm)
-            {
-                await _client.DeleteAsync($"{Endpoints.CustomersEndpoint}/{customerId}");
-                await OnInitializedAsync();
             }
+        </tbody>
+    </table>
+}
 
-        }
+
+@code {
+    private List<Customer> Customers;
+
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        await js.InvokeVoidAsync("AddDataTable", "#customersTable");
     }
+
+    void IDisposable.Dispose()
+    {
+        js.InvokeVoidAsync("DataTablesDispose", "#customersTable");
+    }
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        Customers = await _client.GetFromJsonAsync<List<Customer>>($"{Endpoints.CustomersEndpoint}");
+    }
+
+    async Task Delete(int customerId)
+    {
+        var customer = Customers.First(q => q.Id == customerId);
+        var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {customer.TaxId}?");
+        if (confirm)
+        {
+            await _client.DeleteAsync($"{Endpoints.CustomersEndpoint}/{customerId}");
+            await OnInitializedAsync();
+        }
+
+    }
+}

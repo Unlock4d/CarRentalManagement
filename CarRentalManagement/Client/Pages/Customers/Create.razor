@@ -1,6 +1,6 @@
 ﻿@page "/customers/create/"
 
-@inject HttpClient _client
+@inject IHttpRepository<Customer> _client
 @inject NavigationManager _navManager
 
 
@@ -13,16 +13,10 @@
     Customer customer = new Customer();
     private IList<Customer> Customers;
 
-    protected async override Task OnInitializedAsync()
-    {
-        Customers = await _client.GetFromJsonAsync<List<Customer>>($"{Endpoints.CustomersEndpoint}");
-
-    }
-
 
     private async Task CreateCustomer()
     {
-        await _client.PostAsJsonAsync(Endpoints.CustomersEndpoint, customer);
+        await _client.Create(Endpoints.CustomersEndpoint, customer);
         _navManager.NavigateTo("/customers/");
     }
 

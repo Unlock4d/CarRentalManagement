@@ -1,6 +1,8 @@
-﻿using CarRentalManagement.Client.Static;
+﻿using CarRentalManagement.Client.Contracts;
+using CarRentalManagement.Client.Static;
 using CarRentalManagement.Shared.Domain;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +14,14 @@ namespace CarRentalManagement.Client.Pages.Colours
 {
     public partial class View
     {
-        [Inject] HttpClient _client { get; set; }
-        [Inject] NavigationManager _navManager { get; set; }
+        [Inject] IHttpRepository<Colour> _client { get; set; }
+        [Inject] IJSRuntime js { get; set; }
         [Parameter] public int id { get; set; }
         Colour colour = new Colour();
 
         protected async override Task OnParametersSetAsync()
         {
-            colour = await _client.GetFromJsonAsync<Colour>($"{Endpoints.ColoursEndpoint}/{id}");
+            colour = await _client.Get(Endpoints.ColoursEndpoint, id);
 
         }
     }
